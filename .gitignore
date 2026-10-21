@@ -1,0 +1,15 @@
+# Python virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Local Database / Docker Volumes
+pgdata/
+.env
+
+# MacOS files
+.DS_Store
+
+# Webstorm, IntelliJ, PyCharm
+.idea
