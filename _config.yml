@@ -6,6 +6,10 @@ description: Documenting my daily progress, architecture design, and hands-on le
 # Theme setup (Jekyll's default minima theme works great out of the box)
 theme: minima
 
+# URL Settings for GitHub Project Pages
+url: "https://kevindirkmunroe.github.io"
+baseurl: "/data-engineer-8-week-sprint"
+
 # Output settings
 markdown: kramdown
 permalink: /:year/:month/:day/:title/
