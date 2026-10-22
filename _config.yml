@@ -16,3 +16,6 @@ permalink: /:year/:month/:day/:title/
 
 # Optional: Add your GitHub repository link so it shows up cleanly
 github_username: kevindirkmunroe
+
+exclude:
+  - _templates/
