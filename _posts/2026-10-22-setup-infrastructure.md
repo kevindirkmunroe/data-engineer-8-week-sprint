@@ -24,7 +24,7 @@ data-engineering-8-week-sprint/
 
 ## Preface: The Old MacOS Issue
 
-<img src="/assets/images/old-man-yells-at-cloud.png" width="120" alt="Docker.Desktop Logo">
+<img src="{{ '/assets/images/old-man-yells-at-cloud.png' | relative_url }}" width="120" alt="Docker.Desktop Logo">
 
 I have an older Intel-based Macbook Pro running MacOS Monterey 12.7.6. Newer Docker Desktop releases expect Apple Silicon, but you are not SOL- older versions can be found 
 here: [WildSiphon/DockerDesktop.yaml](https://gist.github.com/WildSiphon/d1aadf81c28ba05269ba639cbfcca2e0). The best Docker Desktop supporting Monterey
@@ -33,7 +33,7 @@ is here: https://desktop.docker.com/mac/main/amd64/191736/Docker.dmg
 This is new to me- Docker works on a subscription basis, so you must login with a work
 email or personal email, to get here (I chose personal):
 
-<img src="/assets/images/docker-desktop-logo.png" width="200" alt="Docker.Desktop Logo">
+<img src="{{ '/assets/images/docker-desktop-logo.png' | relative_url }}" width="200" alt="Docker.Desktop Logo">
 
 Check everything is running with `docker compose ps`:
 
@@ -45,7 +45,7 @@ de_zookeeper   confluentinc/cp-zookeeper:7.5.0   "/etc/confluent/dock…"   zook
 ```
 Ditto in Docker Desktop UI:
 
-<img src="/assets/images/docker-up.png" width="400" alt="Docker.Desktop Logo">
+<img src="{{ '/assets/images/docker-up.png' | relative_url }}" width="400" alt="Docker.Desktop Logo">
 
 ## The Architecture Setup
 
