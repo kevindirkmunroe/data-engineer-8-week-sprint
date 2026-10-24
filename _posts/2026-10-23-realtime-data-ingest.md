@@ -41,7 +41,9 @@ postgres=# \l
 (4 rows)
 ```
 
-## Install Kafka
+## Configure Kafka with Zookeeper
+
+<img src="{{ '/assets/images/queue-i-love-lucy.png' | relative_url }}" width="300" alt="I Love Lucy queue">
 
 Apache Kafka is a distributed commit log pressed into service as a queue for real-time event streaming. Zookeeper is a distributed coordination service that provides core infrastructure to help clustered applications (Kafka, HBase etc) manage shared data and synchronization. I updated docker-compose.yml file to this:
 ```yaml
@@ -96,6 +98,8 @@ networks:
 
 Let's break down the `zookeeper` configuration. I'm not getting bogged down in the details of every parameter r/n.
 this is just a reference for features we'll need to tweak later:
+<details>
+<summary>Zookeeper configuration</summary>
 
 | Key                     | Value                             | Meaning                                                                                                                             |
 | ----------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
@@ -108,6 +112,8 @@ this is just a reference for features we'll need to tweak later:
 | `networks`              | —                                 | Specifies which Docker networks the container joins.                                                                                |
 | `- de-network`          | `de-network`                      | Connects ZooKeeper to the Docker network named `de-network`, allowing other containers on that network to reach it by service name. |
 
+</details>
+
 Notes:
 
 - Port 2181 is accessible to other containers on `de-network`, but isn't exposed to the host machine because no `ports:` mapping is defined.
@@ -115,6 +121,9 @@ Notes:
 - Other containers on the same network can typically connect using `zookeeper:2181`, where `zookeeper` is the Docker Compose service name.
 
 Now lets do the same for `kafka`:
+
+<details>
+<summary>Kafka configuration</summary>
 
 | Key                                      | Value                                                         | Meaning                                                                                                                                              |
 | ---------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -132,6 +141,9 @@ Now lets do the same for `kafka`:
 | `KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR` | `1`                                                           | Sets the replication factor for Kafka's internal consumer-offsets topic to 1. Suitable for a single-broker development environment.                  |
 | `networks`                               | —                                                             | Specifies which Docker networks the Kafka container joins.                                                                                           |
 | `- de-network`                           | `de-network`                                                  | Connects Kafka to the same Docker network as ZooKeeper and other data-engineering services.                                                          |
+
+
+</details>
 
 Notes:
 
@@ -152,6 +164,79 @@ Ok, enough setup- let's produce a data stream and point it at Kafka. First creat
 ```
 We have a script that runs forever, sending messages to `localhost:9092`. I can see the events in the
 `kafka-ui` page running on `localhost:8080`..
+
+<details>
+<summary>produce-events.py</summary>
+
+```python
+import json
+import time
+import random
+from confluent_kafka import Producer
+
+# Configuration for your local Kafka broker spun up via Docker
+conf = {
+    'bootstrap.servers': 'localhost:9092',
+    'client.id': 'python-producer'
+}
+
+# Create Producer instance
+producer = Producer(conf)
+topic_name = 'engineering_events'
+
+
+def delivery_report(err, msg):
+    """ Called once for each message produced to indicate delivery result.
+        Triggered by poll() or flush(). """
+    if err is not None:
+        print(f'❌ Message delivery failed: {err}')
+    else:
+        print(f'✅ Delivered message to {msg.topic()} [partition {msg.partition()}] at offset {msg.offset()}')
+
+
+def generate_mock_event():
+    """Generates a random streaming event payload."""
+    users = ['alice', 'bob', 'charlie', 'diana']
+    actions = ['login', 'click_stream', 'purchase', 'logout']
+
+    return {
+        "event_id": random.randint(10000, 99999),
+        "user": random.choice(users),
+        "action": random.choice(actions),
+        "timestamp": time.time(),
+        "status_code": random.choice([200, 201, 400, 500])
+    }
+
+
+if __name__ == '__main__':
+    print(f"🚀 Starting Kafka producer. Streaming events to topic: '{topic_name}'...")
+
+    try:
+        while True:
+            # Generate event data and convert to JSON string
+            event_data = generate_mock_event()
+            payload = json.dumps(event_data)
+
+            # Trigger any available delivery report callbacks from previous produce() calls
+            producer.poll(0)
+
+            # Asynchronously send the message to Kafka
+            producer.produce(
+                topic_name,
+                key=str(event_data['user']),
+                value=payload.encode('utf-8'),
+                callback=delivery_report
+            )
+
+            # Wait 1 second before generating the next event
+            time.sleep(1.0)
+
+    except KeyboardInterrupt:
+        print("\n🛑 Flushing remaining messages and shutting down producer...")
+        # Wait up to 10 seconds for outstanding messages to be delivered
+        producer.flush(10.0)
+```
+</details>
 
 So why can't I see the producer event in Docker Desktop logs?
 
