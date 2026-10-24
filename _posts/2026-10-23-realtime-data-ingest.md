@@ -98,7 +98,7 @@ networks:
 
 Let's break down the `zookeeper` configuration. I'm not getting bogged down in the details of every parameter r/n.
 this is just a reference for features we'll need to tweak later:
-<details>
+<details markdown="block">
 <summary>Zookeeper configuration</summary>
 
 | Key                     | Value                             | Meaning                                                                                                                             |
@@ -122,7 +122,7 @@ Notes:
 
 Now lets do the same for `kafka`:
 
-<details>
+<details markdown="block">
 <summary>Kafka configuration</summary>
 
 | Key                                      | Value                                                         | Meaning                                                                                                                                              |
@@ -165,7 +165,7 @@ Ok, enough setup- let's produce a data stream and point it at Kafka. First creat
 We have a script that runs forever, sending messages to `localhost:9092`. I can see the events in the
 `kafka-ui` page running on `localhost:8080`..
 
-<details>
+<details markdown="block">
 <summary>produce-events.py</summary>
 
 ```python
